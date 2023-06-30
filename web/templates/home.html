@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Attribution Calculator</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+        <script src="../static/home.js"></script>
+        <!-- Add icon library -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+        <style>                        
+            nav {
+                display: flex;
+                align-items: center;
+            }
+
+            .logo {
+                height: 40px;
+                width: auto;
+                margin-right: 10px;
+                margin: 10px;
+            }
+
+            .date-time {
+                font-size: 20px;
+                margin-right: 10px;
+            }
+
+            .nav-links {
+                margin-right: auto;
+            }
+
+            .logout-container {
+                display: flex;
+                align-items: center;
+                background-color: #ff0404; /* Replace with your desired background color */
+                border: 1px solid #ccc; /* Replace with your desired border styles */
+                border-radius: 4px; /* Replace with your desired border radius */
+                /* padding: 10px; */
+                margin-right: 5px;
+                border-radius: 8px;
+            }
+
+            .logout {
+                /* margin-left: 10px; */
+                background-color: transparent;
+                border: none;
+                cursor: pointer;
+                color: #ffffff; /* Replace with your desired text color */
+                border-radius: 15px;
+            }
+            .forecast-title {
+                font-family: 'Arial Black', sans-serif;
+                color: #ff3366;
+                }
+
+                .forecast-subtitle {
+                font-family: 'Verdana', sans-serif;
+                color: #0066cc;
+                }
+
+        </style>
+
+    </head>
+    
+    <body>
+
+        <nav>
+            <img src="../static/img/lillylogo.png" alt="Logo" class="logo">
+            <div class="nav-links">
+                <a href="/pie_chart"><button {% if request.path == '/pie_chart' %}class="active"{% endif %}>Descriptive Analytics</button></a>
+                <a href="/descp"><button {% if request.path == '/descp' %}class="active"{% endif %}>Marketing Factors</button></a>
+                <a href="/home"><button {% if request.path == '/home' %}class="active"{% endif %}>Forecasting Home</button></a>
+                <a href="/descp2"><button {% if request.path == '/descp2' %}class="active"{% endif %}>Forecast Summary</button></a>
+            </div>
+            <div class="logout-container">
+                <button class="logout" onclick="confirmLogout()">LogOut</button>
+            </div>
+        </nav>
+        
+        <!-- RemediMax	VitaFlux	SynaptraZol	NeuroRevive	Immunoxen	RemediSol	Vitalisol	RestoraZen -->
+
+        <div class="container">
+            <h2 class="forecast-title">Here you go, One step away from Forecast!</h2>
+            <h2 class="forecast-subtitle">Please select the data for Forecast.</h2>
+
+            <div class="loader" id="loader"></div>
+            <form action="/home" method="POST" name="my-form-data-select" enctype="multipart/form-data">
+                <label for="medicine_type">Medicine Name:</label>
+                    <div class="checkbox-group">
+                    <div class="checkbox-row">
+                        <label>
+                        <input type="checkbox" name="medicine_type" value="RemediMax">
+                        <span>RemediMax</span>
+                        </label>
+                        
+                        <label>
+                        <input type="checkbox" name="medicine_type" value="VitaFlux">
+                        <span> VitaFlux</span>
+                        </label>
+                        <label>
+                        <input type="checkbox" name="medicine_type" value="NeuroRevive">
+                        <span>NeuroRevive</span>
+                        </label>
+                        <label>
+                            <input type="checkbox" name="medicine_type" value="SynaptraZol">
+                            <span>SynaptraZol</span>
+                        </label>
+                    </div>
+                    <div class="checkbox-row">
+                        <label>
+                            <input type="checkbox" name="medicine_type" value="Immunoxen">
+                            <span>Immunoxen</span>
+                        </label>
+                        <label>
+                            <input type="checkbox" name="medicine_type" value="Vitalisol">
+                            <span>Vitalisol</span>
+                        </label>
+                        <label>
+                            <input type="checkbox" name="medicine_type" value="RestoraZen">
+                            <span>RestoraZen</span>
+                        </label>
+                        <label>
+                            <input type="checkbox" name="medicine_type" value="RemediSol">
+                            <span>RemediSol</span>
+                        </label>
+                    </div>
+                    </div>
+
+                
+                <label for="time_period">Forecast Period:</label>
+                    <div class="form-group">
+                        <label for="start_date">Start Date:</label>
+                        <input type="date" id="start_date" name="start_date" class="form-control" value="2022-01-05" required>
+
+                        <label for="end_date">End Date:</label>
+                        <input type="date" id="end_date" name="end_date" class="form-control"  value="2022-01-05" required>
+                    </div>
+
+                <label for="region">Select Region:</label>
+                    <div class="checkbox-group-horizontal">
+                    <div class="row">
+                        <div class="column">
+                        <label>
+                            <input type="radio" name="region" value="Global">
+                            <span class="north">Global</span>
+                        </label>
+                        </div>
+                        <div class="column">
+                        <label>
+                            <input type="radio" name="region" value="US">
+                            <span class="west">US</span>
+                        </label>
+                        </div>
+                        <div class="column">
+                        <label>
+                            <input type="radio" name="region" value="CANADA">
+                            <span class="west">CANADA</span>
+                        </label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="column">
+                        <label>
+                            <input type="radio" name="region" value="EU">
+                            <span class="EU">South</span>
+                        </label>
+                        </div>
+                        <div class="column">
+                        <label>
+                            <input type="radio" name="region" value="JAPAN">
+                            <span class="west">JAPAN</span>
+                        </label>
+                        </div>
+                        <div class="column">
+                        <label>
+                            <input type="radio" name="region" value="CHINA">
+                            <span class="south">CHINA</span>
+                        </label>
+                        </div>
+                    </div>
+                    </div>
+
+                <label for="user_type">Select Forecast Frequency:</label>
+                    <div class="user-type-section">
+                        <div class="user-type-column">
+                        <label>
+                            <input type="radio" name="user_type" value="new_user">
+                            <span class="user-type-name">Hourly</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="user_type" value="high_spender">
+                            <span class="user-type-name">Daily</span>
+                        </label>
+                        </div>
+                        <div class="user-type-column">
+                        <label>
+                            <input type="radio" name="user_type" value="returning_user">
+                            <span class="user-type-name">Weekly</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="user_type" value="regular_user">
+                            <span class="user-type-name">Monthly</span>
+                        </label>
+                        </div>
+                    </div>
+                    <!-- <div class="input-group">
+                        <span class="input-group-addon">Sample Size:</span>
+                        <input type="number" id="sample_size" name="sample_size" class="form-control" placeholder="Enter sample size" onchange="formatNumber(this)" required>
+                    </div> -->
+                <!-- <button id="submitBtn" class="submitb" type="submit" onclick="validate2(); return validate();">Submit</button> -->
+
+                <button type="submit" onclick="return validate()">Submit</button>
+                <!-- <button class="buttonload" style="display:none" onclick="return validate()" >
+                    <i class="fa fa-refresh fa-spin"></i>Loading
+                </button> -->
+            </form>
+        </div>
+    </body>
+</html>

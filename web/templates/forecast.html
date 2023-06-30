@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Forecast Visualization</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-I2Kfz1tbgf//8eB+nFzT2OWuyElou2wM6SEjtl27VYO+/vxfMSZGSS1GKebVDk90qXvL1teh/zBmE4NjsiSPvg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js" integrity="sha512-qAXh7+cw5EkiTa44pFl3Sc0Rls7q+lS1vT1lH9Tk2m1I53PVq5Yw7is0p3Mz3CZjcMLJ/ZGGrX1IkQGye8slzg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <style>
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .graph-container {
+            width: 65.0%;
+        }
+
+        .table-container {
+            width: 35.0%;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        th.variable-column {
+            background-color: #eaf6ff; /* Blue color */
+        }
+
+        th.granularity-column {
+            background-color: #e7ffeb; /* Green color */
+        }
+
+        th.model-column {
+            background-color: #fff4e6; /* Orange color */
+        }
+
+        /* Add more styles for other columns if needed */
+        /* Basic styles for the page */
+body {
+    margin: 0;
+    padding: 0;
+}
+
+/* Styles for the top bar */
+.top-bar {
+    background-color: #f2f2f2;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.back-button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin-right: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.back-button i {
+    margin-right: 5px;
+}
+
+
+.model-select, .medicine-select {
+    margin-right: 10px;
+    padding: 5px;
+}
+
+.submit-button {
+    background-color: #008CBA;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+    /* Additional styles for the dropdown menus */
+    select {
+        width: 150px;
+    }
+
+    .logo-image {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: auto;
+        height: 50px;
+    }
+    .exceldown-container {
+                display: flex;
+                align-items: right;
+                background-color: #ff0404; /* Replace with your desired background color */
+                border: 1px solid #ccc; /* Replace with your desired border styles */
+                border-radius: 4px; /* Replace with your desired border radius */
+                padding: 10px;
+                margin-right: 5px;
+                border-radius: 8px;
+                margin: 10px;
+            }
+
+            .exceldown {
+                margin-left: 750px;
+                /* background-color:#FF8C00; */
+                border: none;
+                cursor: pointer;
+                color: #000000; /* Replace with your desired text color */
+                /* border-radius: 15px; */
+                position: right;
+            }
+    h1 {
+            font-family: 'Pacifico', cursive;
+            color: #FF8C00;
+            position: relative;
+            margin-left: 10px;
+        }
+
+        .description-container {
+        font-family: 'Arial', sans-serif; /* Replace with your desired font */
+        color: #3366cc; /* Replace with your desired color */
+        background-color: #ffffff; /* Replace with your desired background color */
+        padding: 10px;
+    }
+
+    h2 {
+        font-size: 24px;
+        font-weight: bold;
+        color: #a24063; /* Replace with your desired color */
+        margin-bottom: 10px;
+    }
+
+    p {
+        font-size: 16px;
+        line-height: 1.5;
+        color: #333; /* Replace with your desired color */
+    }
+    .plot-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    </style>
+</head>
+<body>
+    <h1>   Forecast Visualization</h1>
+    <form method="POST" action="/forecast">
+    <div class="top-bar" >
+
+        <a href="/home" class="back-button"><i class="fas fa-home"></i> Back to Home</a>
+        <select name="model" id="model" class="medicine-select">
+            <option value="-----">Select Model</option>
+            <option value="DeepAR">deepar</option>
+            <option value="prophet">prophet</option>
+            <option value="ARIMA">arima</option>
+        </select>
+        <select name="variable" id="variable" class="medicine-select">
+            <option value="-----">Select Medicine</option>
+            {% for medicine in selected_medicines %}
+            <option value="{{ medicine }}">{{ medicine }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="submit-button">Submit</button>
+        <a href="{{ url_for('download_file') }}" class="exceldown" download="temp_data.csv" style="float: right;">
+            Export to Excel <i class="fas fa-download"></i>
+        </a>
+        <img src="../static/img/lillylogo.png" alt="Logo" class="logo-image">
+    </div>
+    </form> 
+
+    <div class="container">
+        <div class="graph-container">
+            <div class="description-container">
+                <h2>Forecast Description</h2>
+                <!-- <p>{{ description|safe }}</p> -->
+
+                <table>
+                    <tr>
+                        <th>Model</th>
+                        <th>DeepAR</th>
+                        <th>Prophet</th>
+                        <th>ARIMA</th>
+                    </tr>
+                    <tr>
+                        <td>SMAP</td>
+                        <td>34</td>
+                        <td>30</td>
+                        <td>31</td>
+                    </tr>
+                </table>
+
+            </div>
+            <div id="plot"></div>
+
+        </div>
+        <div class="table-container">
+            <h2>Forecast Data Table</h2>
+            <table>
+                <tr>
+                    <th class="variable-column">Date</th>
+                    <th class="variable-column">Variable</th>
+                    <th class="granularity-column">Granularity</th>
+                    <th class="model-column">Model</th>
+                    <th class="actual-column">Actual</th>
+                    <th class="forecast-column">Forecast</th>
+                </tr>
+                {% for entry in data %}
+                <tr>
+                    <td>{{ entry.date }}</td>
+                    <td>{{ entry.variable }}</td>
+                    <td>{{ entry.granularity }}</td>
+                    <td>{{ entry.model }}</td>
+                    <td>{{ entry.actual }}</td>
+                    <td>{{ entry.forecast }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    <script>
+        var graphJSON = {{graphJSON | safe }};
+        Plotly.newPlot('plot', graphJSON);
+    </script>
+    <script>
+        // Get the select element
+        const modelSelect = document.getElementById('model');
+    
+        // Event listener for change in the select option
+        modelSelect.addEventListener('change', function() {
+            // Get the selected value
+            const selectedOption = modelSelect.options[modelSelect.selectedIndex].value;
+            
+            // Store the selected value in local storage
+            localStorage.setItem('selectedModel', selectedOption);
+        });
+    
+        // Retrieve the selected value from local storage
+        const storedValue = localStorage.getItem('selectedModel');
+    
+        // Set the selected value in the dropdown
+        if (storedValue) {
+            modelSelect.value = storedValue;
+        }
+    </script>
+        <script>
+            // Get the select element
+            const medicineSelect = document.getElementById('variable');
+        
+            // Event listener for change in the select option
+            medicineSelect.addEventListener('change', function() {
+                // Get the selected value
+                const selectedOption2 = medicineSelect.options[medicineSelect.selectedIndex].value;
+                
+                // Store the selected value in local storage
+                localStorage.setItem('selectedMedicine', selectedOption2);
+            });
+        
+            // Retrieve the selected value from local storage
+            const storedValue2 = localStorage.getItem('selectedMedicine');
+        
+            // Set the selected value in the dropdown
+            if (storedValue2) {
+                medicineSelect.value = storedValue2;
+            }
+        </script>
+
+</body>
+</html>
